@@ -7,8 +7,7 @@ A shell script to automatic update cloudFlare dns record whit actual external ip
 - Find your `ZoneId` from the [overview] page of you domain.
 - Create an `api token`. You can find it from [Here](https://dash.cloudflare.com/profile/api-tokens)
 - Clone this project to local, fill in `config.conf`. In which, `zoneId` and `apiKey` refer to the contents you just got in the above steps. `recordName`is the dns record name you'd like to operate.
-
-> Attention: if you are using FreeBSD, please move to the FreeBSD branch.
+- Install `jq` (install through pkg or ports)
 
 ## Update Ipv4 record
 Simply run:

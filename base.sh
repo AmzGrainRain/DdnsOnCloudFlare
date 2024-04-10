@@ -52,6 +52,13 @@ getIpv6Address() {
   # curl https://api64.ipify.org
 }
 
+getJsonValue() {
+  local json=$1
+  local path=$2
+
+  echo $json | jq -r $path
+}
+
 listRecord() {
   local zoneId=$1
   local recordName=$2
@@ -60,10 +67,10 @@ listRecord() {
     -H "Content-Type:application/json" \
     -H "Authorization: Bearer $apiKey")
 
-  local resourceId=$(echo "$result" | grep -Po '(?<="id":")[^"]+')
-  local currentValue=$(echo "$result" | grep -Po '(?<="content":")[^"]+')
+  local resourceId=$(getJsonValue "$result" ".result[0].id")
+  local currentValue=$(getJsonValue "$result" ".result[0].content")
 
-  local successStat=$(echo "$result" | grep -Po '(?<="success":)[^,]+')
+  local successStat=$(getJsonValue "$result" ".success")
   if [ "$successStat" != "true" ]; then
     return 1
   fi
@@ -84,7 +91,7 @@ updateRecord() {
     -H "Content-Type: application/json" \
     --data "{\"type\":\"$type\",\"name\":\"$recordName\",\"content\":\"$value\",\"ttl\":600,\"proxied\":false}")
 
-  local successStat=$(echo "$result" | grep -Po '(?<="success":)[^,]+')
+  local successStat=$(getJsonValue "$result" ".success")
   [ "$successStat" = "true" ]
   return $?
 }
@@ -100,10 +107,10 @@ createRecord() {
     -H "Authorization: Bearer $apiKey" \
     -H "Content-Type: application/json" \
     --data "{\"type\":\"$type\",\"name\":\"$recordName\",\"content\":\"$value\",\"ttl\":600,\"proxied\":false}")
-  local successStat=$(echo "$result" | grep -Po '(?<="success":)[^,]+')
+  local successStat=$(getJsonValue "$result" ".success")
   if [ "$successStat" != "true" ]; then
     return 1
   fi
-  local recordId=$(echo "$result" | grep -Po '(?<="id":")[^"]+')
+  local recordId=$(getJsonValue "$result" ".result.id")
   echo "$recordId"
 }
