@@ -1,9 +1,9 @@
-#!/bin/sh
 #title           :base.sh
 #description     :
 #author          :gf@gfshen.cn
 #date            :2022-05-03
 #==============================================================================
+email=''
 zoneId=''
 recordName=''
 apiKey=''
@@ -64,8 +64,8 @@ listRecord() {
   local recordName=$2
   local apiKey=$3
   local result=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$zoneId/dns_records?name=$recordName" \
-    -H "Content-Type:application/json" \
-    -H "Authorization: Bearer $apiKey")
+    -H "X-Auth-Email: $email" \
+    -H "x-Auth-Key: $apiKey")
 
   local resourceId=$(getJsonValue "$result" ".result[0].id")
   local currentValue=$(getJsonValue "$result" ".result[0].content")
@@ -87,7 +87,8 @@ updateRecord() {
   local value=$6
 
   local result=$(curl -s -X PUT "https://api.cloudflare.com/client/v4/zones/$zoneId/dns_records/$resourceId" \
-    -H "Authorization: Bearer $apiKey" \
+    -H "X-Auth-Email: $email" \
+    -H "X-Auth-Key: $apiKey" \
     -H "Content-Type: application/json" \
     --data "{\"type\":\"$type\",\"name\":\"$recordName\",\"content\":\"$value\",\"ttl\":600,\"proxied\":false}")
 
@@ -104,7 +105,8 @@ createRecord() {
   local value=$5
 
   local result=$(curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$zoneId/dns_records" \
-    -H "Authorization: Bearer $apiKey" \
+    -H "X-Auth-Email: $email" \
+    -H "X-Auth-Key: $apiKey" \
     -H "Content-Type: application/json" \
     --data "{\"type\":\"$type\",\"name\":\"$recordName\",\"content\":\"$value\",\"ttl\":600,\"proxied\":false}")
   local successStat=$(getJsonValue "$result" ".success")
